@@ -1034,7 +1034,7 @@ export default function TodoApp() {
 
         {/* Logout Confirmation Dialog */}
         {showLogoutConfirm && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
             <div
               className={`${darkMode ? "bg-dark-card border-dark-border/30" : "bg-white border-neutral-200"} border rounded-lg p-6 max-w-sm w-full animate-scaleIn`}
             >
@@ -1068,7 +1068,7 @@ export default function TodoApp() {
 
         {/* Timer Settings Modal */}
         {showTimerSettings && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
             <div
               className={`${darkMode ? "bg-dark-card border-dark-border/30" : "bg-white border-neutral-200"} border rounded-lg p-6 max-w-sm w-full animate-scaleIn`}
             >
