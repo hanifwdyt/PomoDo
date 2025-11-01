@@ -85,11 +85,24 @@ export default function MusicPlayer({ darkMode }) {
       clearTimeout(timeoutRef.current);
     }
 
-    // Set 15-second timeout
+    // Set 15-second timeout - auto cleanup on timeout
     timeoutRef.current = setTimeout(() => {
       if (!isPlayerReady && !playerError) {
-        console.log("Player loading timeout after 15 seconds");
-        setLoadingTimeout(true);
+        console.log("Player loading timeout after 15 seconds - removing music");
+        // Auto cleanup
+        if (playerRef.current) {
+          try {
+            playerRef.current.destroy();
+          } catch (err) {
+            console.log("Error destroying player on timeout:", err);
+          }
+        }
+        setMusicEnabled(false);
+        setIsPlaying(false);
+        setVideoId("");
+        setLoadingTimeout(false);
+        localStorage.setItem("musicEnabled", "false");
+        alert("Music took too long to load. Please try with a different video or check your internet connection.");
       }
     }, 15000);
 
@@ -157,9 +170,16 @@ export default function MusicPlayer({ darkMode }) {
                 clearTimeout(timeoutRef.current);
               }
 
-              setIsPlayerReady(false);
-              setPlayerError(true);
+              // Auto cleanup on error
+              setMusicEnabled(false);
+              setIsPlaying(false);
+              setVideoId("");
+              setPlayerError(false);
               setLoadingTimeout(false);
+              setIsPlayerReady(false);
+              localStorage.setItem("musicEnabled", "false");
+
+              alert("Can't play this video. It may be unavailable, private, or restricted. Please try a different video.");
             },
           },
         });
