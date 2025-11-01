@@ -410,18 +410,29 @@ export default function MusicPlayer({ darkMode }) {
                   </div>
                 </>
               ) : (
-                // Skeleton loading
+                // Skeleton loading with progress
                 <>
-                  <div className={`h-6 w-6 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse flex-shrink-0`}></div>
-                  <div className="flex-1 min-w-0 space-y-2">
-                    <div className={`h-3 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse w-3/4`}></div>
-                    <div className={`h-2 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse w-1/2`}></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className={`h-3 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse w-3/4`}></div>
+                    </div>
+                    <div className={`h-1.5 rounded-full overflow-hidden ${darkMode ? "bg-neutral-700" : "bg-neutral-200"}`}>
+                      <div
+                        className={`h-full ${darkMode ? "bg-white" : "bg-neutral-700"} animate-loadingProgress`}
+                        style={{ width: '0%' }}
+                      ></div>
+                    </div>
+                    <p className={`text-xs ${darkMode ? "text-dark-muted" : "text-neutral-500"} mt-1.5`}>
+                      Loading music...
+                    </p>
                   </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <div className={`h-7 w-7 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse`}></div>
-                    <div className={`h-8 w-8 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse`}></div>
-                    <div className={`h-7 w-7 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse`}></div>
-                  </div>
+                  <button
+                    onClick={handleClose}
+                    className={`p-1.5 ${darkMode ? "hover:bg-neutral-700 text-dark-muted" : "hover:bg-neutral-100 text-neutral-400"} rounded transition-colors flex-shrink-0`}
+                    title="Cancel"
+                  >
+                    <X size={14} />
+                  </button>
                 </>
               )
             ) : (

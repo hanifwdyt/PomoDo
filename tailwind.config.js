@@ -18,6 +18,15 @@ export default {
           text: '#e5e5e5',
           muted: '#a3a3a3',
         }
+      },
+      keyframes: {
+        loadingProgress: {
+          '0%': { width: '0%' },
+          '100%': { width: '100%' }
+        }
+      },
+      animation: {
+        loadingProgress: 'loadingProgress 15s linear forwards'
       }
     },
   },
