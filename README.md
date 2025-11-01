@@ -1,42 +1,73 @@
-# Todo App with Authentication
+# PomoDo
 
-A minimalist, user-based todo list application with scopes, pomodoro timer, and dark mode. Built with React and Supabase.
+A minimalist productivity app combining Pomodoro timer and todo list management. Built with React, Tailwind CSS, and Supabase.
 
-## Features
+**Focus. Complete. Achieve.**
 
-- **Multi-scope Todo Lists**: Organize tasks into different categories (Work, Personal, etc.)
-- **Pomodoro Timer**: Built-in focus timer with work/break cycles
-- **Dark/Light Mode**: Toggle between themes with persistent settings
-- **User Authentication**: Secure register/login with email
-- **Cloud Sync**: Tasks automatically sync across devices
-- **Clean UI**: Minimalist design built with Tailwind CSS
+---
 
-## Tech Stack
+## ✨ Features
 
-- **Frontend**: React 18 + Vite
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide React
-- **Backend**: Supabase (Auth + Database + Real-time)
+### 📝 **Todo Management**
+- **Multi-scope Organization**: Organize tasks into different categories (Work, Personal, Projects, etc.)
+- **Quick Add**: Press `/` or `Cmd+K` to focus input instantly
+- **Inline Editing**: Click on task text to rename
+- **Smart Completion**: Check off tasks and track your progress
+- **Undo Support**: Accidentally deleted? Undo within 5 seconds
+- **Persistent State**: All your tasks sync across devices
 
-## Prerequisites
+### ⏱️ **Pomodoro Timer**
+- **Customizable Duration**: Set your own work and break periods
+- **Audio Notifications**: Get notified when timer completes
+- **Visual Progress**: Clean progress bar with time remaining
+- **Persistent Timer**: Timer continues running even after page refresh
+- **Mobile Optimized**: Collapsible timer on mobile devices
 
-Before you begin, ensure you have:
-- Node.js 16+ installed
-- A Supabase account (free tier works great)
+### 🎵 **Music/Podcast Player**
+- **YouTube Integration**: Play background music or podcasts while working
+- **Clean Controls**: Play, pause, mute controls
+- **Persistent Playback**: Resume playback after page reload
+- **Visual Feedback**: Animated waveform bars when playing
+- **Minimal Widget**: Non-intrusive player that aligns with your todo list
 
-## Setup Instructions
+### 🎨 **User Experience**
+- **Dark/Light Mode**: Toggle themes with persistent preference
+- **Keyboard Shortcuts**: Navigate efficiently with hotkeys
+- **Responsive Design**: Perfect on desktop, tablet, and mobile
+- **Touch-Friendly**: Optimized touch targets for mobile
+- **Smooth Animations**: Polished micro-interactions throughout
+
+### 🔐 **Authentication & Security**
+- **Secure Login**: Email authentication with Supabase
+- **Password Visibility**: Toggle password visibility during input
+- **Loading States**: Clear feedback during authentication
+- **Success Messages**: Smooth transitions with status updates
+- **Row-Level Security**: Your data is private and secure
+
+### 📱 **Progressive Web App (PWA)**
+- **Install to Home Screen**: Works like a native app on mobile
+- **Offline UI**: App loads and works without internet
+- **Fast Loading**: Service worker caching for instant load times
+- **App-Like Experience**: Full screen mode on mobile devices
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 16 or higher
+- A Supabase account (free tier works)
 
 ### 1. Supabase Setup
 
-1. Go to [supabase.com](https://supabase.com) and create a new project
-2. Once your project is created, go to **Settings** > **API**
-3. Copy your:
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Go to **Settings** → **API** and copy:
    - Project URL
    - Anon/Public Key
 
-4. In the Supabase dashboard, go to **SQL Editor** and run the following SQL:
+3. Run this SQL in **SQL Editor**:
 
-\`\`\`sql
+```sql
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -158,11 +189,9 @@ CREATE POLICY "Users can delete own todos"
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- Create default user settings
   INSERT INTO public.user_settings (user_id)
   VALUES (NEW.id);
 
-  -- Create default scope
   INSERT INTO public.scopes (user_id, name, position)
   VALUES (NEW.id, 'Personal', 0);
 
@@ -196,140 +225,268 @@ CREATE TRIGGER update_scopes_updated_at
 CREATE TRIGGER update_todos_updated_at
   BEFORE UPDATE ON todos
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-\`\`\`
+```
 
 ### 2. Local Setup
 
-1. **Configure Environment Variables**
+1. **Clone and Install**
+   ```bash
+   git clone <your-repo-url>
+   cd todolist-app
+   npm install
+   ```
 
-   Edit the \`.env.local\` file and add your Supabase credentials:
+2. **Configure Environment**
 
-   \`\`\`env
+   Create `.env.local` in the root directory:
+   ```env
    VITE_SUPABASE_URL=your_supabase_project_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   \`\`\`
-
-2. **Install Dependencies**
-
-   \`\`\`bash
-   npm install
-   \`\`\`
+   ```
 
 3. **Start Development Server**
-
-   \`\`\`bash
+   ```bash
    npm run dev
-   \`\`\`
+   ```
 
-   The app will open at \`http://localhost:5173\`
+   Open http://localhost:5173
 
-## Usage
+---
 
-### First Time Setup
+## 📖 User Guide
 
-1. Click "Sign Up" to create a new account
-2. Check your email for verification (if enabled in Supabase)
-3. Sign in with your credentials
+### Getting Started
 
-### Managing Todos
+1. **Sign Up**: Create account with email and password (minimum 6 characters)
+2. **Sign In**: Login with your credentials
+3. **Add Tasks**: Type in input field and press Enter
+4. **Organize**: Create multiple scopes for different projects
 
-- **Add Tasks**: Type in the input field and press Enter or click "Add"
-- **Complete Tasks**: Click the checkbox next to any task
-- **Delete Tasks**: Hover over a task and click the trash icon
-- **Organize with Scopes**: Create different categories (Work, Personal, etc.)
-- **Rename Scopes**: Double-click on a scope tab to rename it
-- **Delete Scopes**: Click the X button on a scope tab
+### Keyboard Shortcuts
 
-### Using the Pomodoro Timer
+| Shortcut | Action |
+|----------|--------|
+| `/` or `Cmd+K` | Focus task input |
+| `Esc` | Clear input (when focused) |
+| `Cmd+1/2/3...` | Switch between scopes |
+| `Enter` | Submit form |
+| `Double Click` | Rename scope tab |
 
-1. Click "Start" to begin a 25-minute focus session
-2. Timer will automatically switch to a 5-minute break when complete
-3. Browser notifications will alert you when time is up
-4. Use "Reset" to restart the timer
+### Todo Management
+
+- **Add Task**: Type and press Enter or click "Add"
+- **Complete Task**: Click checkbox
+- **Edit Task**: Click on task text to rename
+- **Delete Task**: Click trash icon (hover on desktop)
+- **Undo Delete**: Click "Undo" within 5 seconds
+
+### Scope Management
+
+- **Create Scope**: Click "+" button next to tabs
+- **Rename Scope**: Double-click tab name
+- **Delete Scope**: Click "X" on tab (cannot delete last scope)
+- **Switch Scopes**: Click tab or use `Cmd+1/2/3`
+
+### Pomodoro Timer
+
+1. **Start Timer**: Click clock icon
+2. **Configure**: Click settings icon to adjust durations
+3. **Control**: Use Play/Pause and Reset buttons
+4. **Notifications**: Browser will notify when timer completes
+5. **Close Timer**: Click X to hide timer
+
+### Music Player
+
+1. **Add Music**: Click music icon → Paste YouTube URL
+2. **Controls**: Play, Pause, Mute buttons
+3. **Change Track**: Click on player widget title
+4. **Close Player**: Click X to remove music
 
 ### Dark Mode
 
-Click the moon/sun icon in the top right to toggle between light and dark themes. Your preference is saved to your account.
+- Toggle with moon/sun icon (top right)
+- Preference saved to your account
+- Syncs across devices
 
-## Project Structure
+---
 
-\`\`\`
+## 🏗️ Tech Stack
+
+### Frontend
+- **React 18** - UI library
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Utility-first styling
+- **Lucide React** - Icon library
+
+### Backend
+- **Supabase** - Backend as a Service
+  - PostgreSQL database
+  - User authentication
+  - Row-level security
+  - Real-time subscriptions
+
+### PWA
+- **Vite PWA Plugin** - Service worker generation
+- **Workbox** - Caching strategies
+- **Web App Manifest** - Install to home screen
+
+---
+
+## 📁 Project Structure
+
+```
 src/
 ├── components/
 │   ├── Auth/
-│   │   ├── LoginPage.jsx          # Login/Register form
-│   │   └── ProtectedRoute.jsx     # Auth wrapper
+│   │   └── LoginPage.jsx          # Authentication UI
 │   ├── Todo/
-│   │   ├── TodoApp.jsx             # Main app container
-│   │   ├── TodoInput.jsx           # Task input field
-│   │   ├── TodoItem.jsx            # Individual task item
-│   │   └── ScopeTab.jsx            # Scope navigation tab
-│   ├── Pomodoro/
-│   │   └── PomodoroTimer.jsx       # Pomodoro timer
-│   └── Shared/
-│       └── ThemeToggle.jsx         # Dark mode toggle
+│   │   └── TodoApp.jsx             # Main app with todos & timer
+│   └── Music/
+│       └── MusicPlayer.jsx         # YouTube music player
 ├── services/
-│   ├── api.js                      # API functions
-│   └── supabase.js                 # Supabase client
-├── hooks/
-│   └── useAuth.js                  # Authentication hook
+│   ├── api.js                      # Supabase API functions
+│   ├── supabase.js                 # Supabase client
+│   └── offlineQueue.js             # PWA offline queue (future)
 ├── App.jsx                         # Root component
-└── main.jsx                        # Entry point
-\`\`\`
+├── main.jsx                        # Entry point
+└── index.css                       # Global styles & animations
 
-## Build for Production
+public/
+├── manifest.json                   # PWA manifest
+├── sw.js                           # Service worker (auto-generated)
+└── icon.svg                        # App icon
+```
 
-\`\`\`bash
+---
+
+## 🎨 Design Philosophy
+
+### Minimalist UI
+- Clean, distraction-free interface
+- Focus on content, not chrome
+- Generous whitespace
+- Subtle animations
+
+### Typography
+- Lora font for elegance
+- Clear hierarchy
+- Optimal line length
+- Responsive sizing
+
+### Color Palette
+- Dark mode: `#1a1a1a` background
+- Light mode: `#fafafa` background
+- Neutral grays for UI elements
+- Accent colors for interactions
+
+### Mobile-First
+- Responsive breakpoint at 768px
+- Touch-friendly targets (min 44px)
+- Optimized spacing for small screens
+- Smart layout adjustments
+
+---
+
+## 🚢 Deployment
+
+### Build for Production
+```bash
 npm run build
-\`\`\`
+```
 
-The build output will be in the \`dist/\` directory.
+Output will be in `dist/` directory.
 
-## Deployment
+### Deploy to Vercel (Recommended)
+```bash
+npm i -g vercel
+vercel
+```
 
-### Vercel (Recommended)
+Add environment variables in Vercel dashboard:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-1. Install Vercel CLI: \`npm i -g vercel\`
-2. Run \`vercel\` in the project directory
-3. Add environment variables in Vercel dashboard:
-   - \`VITE_SUPABASE_URL\`
-   - \`VITE_SUPABASE_ANON_KEY\`
-
-### Netlify
-
-1. Connect your GitHub repository to Netlify
-2. Set build command: \`npm run build\`
-3. Set publish directory: \`dist\`
-4. Add environment variables in Netlify dashboard
+### Deploy to Netlify
+1. Connect GitHub repository to Netlify
+2. Build command: `npm run build`
+3. Publish directory: `dist`
+4. Add environment variables
 
 ### Configure Supabase for Production
+1. Go to **Authentication** → **URL Configuration**
+2. Add production domain to **Site URL**
+3. Add redirect URLs
 
-In your Supabase dashboard:
-1. Go to **Authentication** > **URL Configuration**
-2. Add your production domain to **Site URL**
-3. Add redirect URLs if needed
+---
 
-## Troubleshooting
+## 🐛 Troubleshooting
 
-**Authentication not working:**
-- Verify environment variables are set correctly
+### Authentication Issues
+- Verify `.env.local` variables are set correctly
 - Check Supabase project URL and anon key
-- Ensure email confirmation is disabled (or check your email)
+- Ensure email confirmation is disabled (Settings → Authentication)
 
-**Data not loading:**
-- Verify SQL schema was created successfully
+### Data Not Loading
+- Verify SQL schema ran successfully
 - Check RLS policies in Supabase dashboard
-- Look for errors in browser console
+- Check browser console for errors
 
-**Pomodoro notifications not showing:**
-- Grant notification permissions when prompted
-- Check browser notification settings
+### Timer Persists After Refresh
+- This is intentional! Timer state is saved to localStorage
+- Click Reset or Close timer to clear
 
-## License
+### Music Player Issues
+- Service Worker may be caching old version
+- Hard refresh (Cmd+Shift+R / Ctrl+Shift+F5)
+- Clear service worker in DevTools → Application → Service Workers
 
-MIT
+### PWA Not Installing
+- PWA requires HTTPS in production
+- Icons must be 192x192 and 512x512 PNG
+- Check manifest.json in DevTools → Application
 
-## Contributing
+---
 
-Feel free to submit issues and pull requests!
-# PomoDo
+## 🔮 Future Enhancements
+
+### Planned Features
+- [ ] Offline sync queue (infrastructure ready in `offlineQueue.js`)
+- [ ] Task priority levels
+- [ ] Subtasks / checklists
+- [ ] Due dates and reminders
+- [ ] Task statistics and analytics
+- [ ] Export/import tasks
+- [ ] Keyboard shortcuts customization
+- [ ] Custom themes
+- [ ] Push notifications for timer
+
+### PWA Improvements
+- [ ] Background sync for offline changes
+- [ ] Push notifications
+- [ ] Share target (share links to PomoDo)
+- [ ] App shortcuts menu
+
+---
+
+## 📄 License
+
+MIT License - feel free to use for personal or commercial projects.
+
+---
+
+## 🙏 Credits
+
+Built with modern web technologies:
+- React team for React 18
+- Vercel for Vite
+- Tailwind Labs for Tailwind CSS
+- Supabase for amazing BaaS
+- Lucide for beautiful icons
+
+---
+
+## 💬 Support
+
+Issues? Suggestions? Feel free to open an issue or submit a pull request!
+
+**Made with focus and simplicity.**
