@@ -13,6 +13,7 @@ export default function MusicPlayer({ darkMode }) {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isAPIReady, setIsAPIReady] = useState(false);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [playerError, setPlayerError] = useState(false);
   const playerRef = useRef(null);
   const iframeRef = useRef(null);
   const pendingVideoIdRef = useRef(null);
@@ -77,6 +78,7 @@ export default function MusicPlayer({ darkMode }) {
     console.log("Initializing player with videoId:", videoId);
     setIsPlayerReady(false);
     setLoadingTimeout(false);
+    setPlayerError(false);
 
     // Clear any existing timeout
     if (timeoutRef.current) {
@@ -85,7 +87,7 @@ export default function MusicPlayer({ darkMode }) {
 
     // Set 15-second timeout
     timeoutRef.current = setTimeout(() => {
-      if (!isPlayerReady) {
+      if (!isPlayerReady && !playerError) {
         console.log("Player loading timeout after 15 seconds");
         setLoadingTimeout(true);
       }
@@ -149,7 +151,15 @@ export default function MusicPlayer({ darkMode }) {
             },
             onError: (event) => {
               console.error("Player error:", event.data);
+
+              // Clear timeout on error
+              if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+              }
+
               setIsPlayerReady(false);
+              setPlayerError(true);
+              setLoadingTimeout(false);
             },
           },
         });
@@ -237,8 +247,12 @@ export default function MusicPlayer({ darkMode }) {
 
   const handleClose = () => {
     if (playerRef.current) {
-      playerRef.current.stopVideo();
-      playerRef.current.destroy();
+      try {
+        playerRef.current.stopVideo();
+        playerRef.current.destroy();
+      } catch (err) {
+        console.log("Error closing player:", err);
+      }
     }
     // Clear timeout on close
     if (timeoutRef.current) {
@@ -248,11 +262,13 @@ export default function MusicPlayer({ darkMode }) {
     setIsPlaying(false);
     setVideoId("");
     setLoadingTimeout(false);
+    setPlayerError(false);
     localStorage.setItem("musicEnabled", "false");
   };
 
   const handleRetry = () => {
     setLoadingTimeout(false);
+    setPlayerError(false);
     setShowModal(true);
   };
 
@@ -380,9 +396,36 @@ export default function MusicPlayer({ darkMode }) {
                 : "bg-white border-neutral-200"
             } border rounded-lg p-3 shadow-lg flex items-center gap-3`}
           >
-            {/* Loading State - Skeleton or Timeout */}
+            {/* Loading State - Skeleton, Timeout, or Error */}
             {!isPlayerReady ? (
-              loadingTimeout ? (
+              playerError ? (
+                // Error message
+                <>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-xs font-medium ${darkMode ? "text-red-400" : "text-red-600"}`}>
+                      Can't play this video
+                    </p>
+                    <p className={`text-xs ${darkMode ? "text-dark-muted" : "text-neutral-500"} mt-0.5`}>
+                      Video is unavailable, private, or restricted
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={handleRetry}
+                      className={`px-3 py-1.5 text-xs font-medium ${darkMode ? "bg-white text-neutral-900 hover:bg-neutral-100" : "bg-neutral-700 text-white hover:bg-neutral-800"} rounded transition-colors`}
+                    >
+                      Change Video
+                    </button>
+                    <button
+                      onClick={handleClose}
+                      className={`p-1.5 ${darkMode ? "hover:bg-neutral-700 text-dark-muted" : "hover:bg-neutral-100 text-neutral-400"} rounded transition-colors`}
+                      title="Remove music"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                </>
+              ) : loadingTimeout ? (
                 // Timeout message
                 <>
                   <div className="flex-1 min-w-0">
@@ -390,7 +433,7 @@ export default function MusicPlayer({ darkMode }) {
                       Music taking too long to load
                     </p>
                     <p className={`text-xs ${darkMode ? "text-dark-muted" : "text-neutral-500"} mt-0.5`}>
-                      Network might be slow or the video unavailable
+                      Network might be slow. Try again?
                     </p>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">

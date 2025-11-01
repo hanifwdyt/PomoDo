@@ -241,7 +241,7 @@ export default function LoginPage({ onLoginSuccess }) {
             Made with focus and simplicity
           </p>
           <p className={`text-xs ${darkMode ? 'text-neutral-600' : 'text-neutral-400'}`}>
-            v1.2.1
+            v1.2.3
           </p>
         </div>
       </div>
