@@ -737,32 +737,29 @@ export default function TodoApp() {
               )}
 
               {/* Scope selector & actions */}
-              <div className="space-y-3">
-                {/* Row 1: Scope selector with add button */}
-                <div className="flex items-center gap-2">
-                  <select
-                    value={activeScope || ""}
-                    onChange={(e) => setActiveScope(e.target.value)}
-                    className={`flex-1 px-3 py-2 text-sm border ${darkMode ? "bg-dark-bg border-dark-border/30 text-dark-text" : "bg-neutral-50 border-neutral-200 text-neutral-800"} rounded focus:outline-none focus:border-neutral-400`}
-                  >
-                    {scopes.map((scope) => (
-                      <option key={scope.id} value={scope.id}>
-                        {scope.name}
-                      </option>
-                    ))}
-                  </select>
+              <div className="flex items-center justify-between gap-2">
+                <select
+                  value={activeScope || ""}
+                  onChange={(e) => {
+                    if (e.target.value === '__add_new__') {
+                      addScope();
+                    } else {
+                      setActiveScope(e.target.value);
+                    }
+                  }}
+                  className={`flex-1 px-3 py-2 text-sm border ${darkMode ? "bg-dark-bg border-dark-border/30 text-dark-text" : "bg-neutral-50 border-neutral-200 text-neutral-800"} rounded focus:outline-none focus:border-neutral-400`}
+                >
+                  {scopes.map((scope) => (
+                    <option key={scope.id} value={scope.id}>
+                      {scope.name}
+                    </option>
+                  ))}
+                  <option value="__add_new__" className={darkMode ? "text-dark-muted" : "text-neutral-500"}>
+                    + Add new scope
+                  </option>
+                </select>
 
-                  <button
-                    onClick={addScope}
-                    className={`p-2 ${darkMode ? "text-dark-text hover:bg-neutral-700" : "text-neutral-600 hover:bg-neutral-100"} rounded transition-colors active:scale-95`}
-                    title="Add scope"
-                  >
-                    <Plus size={18} />
-                  </button>
-                </div>
-
-                {/* Row 2: Action buttons */}
-                <div className="flex items-center justify-end gap-1">
+                <div className="flex items-center gap-1">
                   <MusicPlayer darkMode={darkMode} />
 
                   <button
