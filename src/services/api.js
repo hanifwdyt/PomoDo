@@ -37,6 +37,23 @@ export const authAPI = {
   async getSession() {
     const { data: { session } } = await supabase.auth.getSession()
     return session
+  },
+
+  // Get total registered users count
+  async getTotalUsers() {
+    const { count, error } = await supabase
+      .from('scopes')
+      .select('user_id', { count: 'exact', head: false })
+
+    if (error) throw error
+
+    // Get unique user count
+    const { data: uniqueUsers } = await supabase
+      .from('scopes')
+      .select('user_id')
+
+    const uniqueCount = new Set(uniqueUsers?.map(s => s.user_id)).size
+    return uniqueCount || 0
   }
 }
 

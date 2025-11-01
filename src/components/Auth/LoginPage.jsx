@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { authAPI } from "../../services/api";
-import { Moon, Sun, Eye, EyeOff, Loader2, CheckCircle2 } from 'lucide-react'
+import { Moon, Sun, Eye, EyeOff, Loader2, CheckCircle2, Users, Sparkles, X, FolderKanban, Clock, Music, Check, Smartphone, Cloud, Keyboard } from 'lucide-react'
 
 export default function LoginPage({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
@@ -11,6 +11,8 @@ export default function LoginPage({ onLoginSuccess }) {
   const [darkMode, setDarkMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [showFeatures, setShowFeatures] = useState(false);
 
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true'
@@ -18,6 +20,14 @@ export default function LoginPage({ onLoginSuccess }) {
     if (savedDarkMode) {
       document.documentElement.classList.add('dark')
     }
+
+    // Calculate dummy user count (82 users on Nov 1, 2025 + 7 per day)
+    const baseUsers = 82
+    const baseDate = new Date('2025-11-01')
+    const today = new Date()
+    const daysDiff = Math.floor((today - baseDate) / (1000 * 60 * 60 * 24))
+    const calculatedUsers = baseUsers + (daysDiff * 7)
+    setTotalUsers(calculatedUsers)
   }, [])
 
   useEffect(() => {
@@ -83,6 +93,17 @@ export default function LoginPage({ onLoginSuccess }) {
               PomoDo
             </h1>
             <p className={`text-xs md:text-sm ${darkMode ? 'text-dark-muted' : 'text-neutral-500'}`}>Focus, Complete, Achieve</p>
+
+            {/* Features Button */}
+            <div className="flex items-center justify-center mt-4">
+              <button
+                onClick={() => setShowFeatures(true)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${darkMode ? 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'} text-xs transition-colors`}
+              >
+                <Sparkles size={14} />
+                <span className="font-medium">Features</span>
+              </button>
+            </div>
           </div>
 
           {/* Card - Responsive padding */}
@@ -201,6 +222,16 @@ export default function LoginPage({ onLoginSuccess }) {
               {isRegister ? "Sign In" : "Sign Up"}
             </button>
           </p>
+
+          {/* User Counter */}
+          {totalUsers > 0 && (
+            <div className="flex items-center justify-center gap-1.5 mt-5 md:mt-4">
+              <Users size={14} className={darkMode ? 'text-dark-muted' : 'text-neutral-400'} />
+              <span className={`text-xs ${darkMode ? 'text-dark-muted' : 'text-neutral-500'}`}>
+                Join {totalUsers.toLocaleString()}+ users
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -210,6 +241,120 @@ export default function LoginPage({ onLoginSuccess }) {
             Made with focus and simplicity
           </p>
         </div>
+      </div>
+
+      {/* Features Modal */}
+      {showFeatures && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center z-[100] p-0 md:p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowFeatures(false);
+            }
+          }}
+        >
+          <div
+            className={`${darkMode ? 'bg-dark-card border-dark-border/30' : 'bg-white border-neutral-200'} border md:rounded-lg rounded-t-2xl w-full md:max-w-lg max-h-[85vh] flex flex-col animate-slideUp md:animate-scaleIn`}
+            style={{ touchAction: 'auto' }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-neutral-200 dark:border-dark-border/30">
+              <div className="flex items-center gap-2">
+                <Sparkles size={20} className={darkMode ? "text-yellow-400" : "text-yellow-500"} />
+                <h3 className={`text-lg font-medium ${darkMode ? 'text-dark-text' : 'text-neutral-900'}`}>
+                  What's Inside
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowFeatures(false)}
+                className={`p-2 ${darkMode ? 'hover:bg-neutral-700' : 'hover:bg-neutral-100'} rounded-full transition-colors`}
+              >
+                <X size={20} className={darkMode ? "text-dark-muted" : "text-neutral-500"} />
+              </button>
+            </div>
+
+            {/* Features List */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              <FeatureItem
+                icon={<FolderKanban size={20} />}
+                title="Scopes"
+                description="Organize tasks by context"
+                darkMode={darkMode}
+              />
+              <FeatureItem
+                icon={<Clock size={20} />}
+                title="Pomodoro Timer"
+                description="Focus sessions with breaks"
+                darkMode={darkMode}
+              />
+              <FeatureItem
+                icon={<Moon size={20} />}
+                title="Dark Mode"
+                description="Easy on the eyes"
+                darkMode={darkMode}
+              />
+              <FeatureItem
+                icon={<Music size={20} />}
+                title="Focus Music"
+                description="Built-in music player"
+                darkMode={darkMode}
+              />
+              <FeatureItem
+                icon={<Check size={20} />}
+                title="Task Management"
+                description="Simple todo system"
+                darkMode={darkMode}
+              />
+              <FeatureItem
+                icon={<Smartphone size={20} />}
+                title="Mobile Optimized"
+                description="Works on all devices"
+                darkMode={darkMode}
+              />
+              <FeatureItem
+                icon={<Cloud size={20} />}
+                title="Auto-Save"
+                description="Cloud sync included"
+                darkMode={darkMode}
+              />
+              <FeatureItem
+                icon={<Keyboard size={20} />}
+                title="Shortcuts"
+                description="Keyboard navigation"
+                darkMode={darkMode}
+              />
+            </div>
+
+            {/* Footer */}
+            <div className="p-5 border-t border-neutral-200 dark:border-dark-border/30">
+              <button
+                onClick={() => setShowFeatures(false)}
+                className={`w-full py-3 ${darkMode ? 'bg-white text-neutral-900 hover:bg-neutral-100' : 'bg-neutral-800 text-white hover:bg-neutral-900'} rounded-lg transition-all font-medium`}
+              >
+                {isRegister ? "Start Creating" : "Got It!"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Feature Item Component
+function FeatureItem({ icon, title, description, darkMode }) {
+  return (
+    <div className="flex gap-3 items-start">
+      <div className={`flex-shrink-0 p-2 rounded-lg ${darkMode ? 'bg-neutral-700/50 text-dark-text' : 'bg-neutral-100 text-neutral-700'}`}>
+        {icon}
+      </div>
+      <div>
+        <h4 className={`font-medium text-sm mb-0.5 ${darkMode ? 'text-dark-text' : 'text-neutral-900'}`}>
+          {title}
+        </h4>
+        <p className={`text-xs ${darkMode ? 'text-dark-muted' : 'text-neutral-600'}`}>
+          {description}
+        </p>
       </div>
     </div>
   );
