@@ -45,6 +45,7 @@ export default function TodoApp() {
   const [showCompletedTasks, setShowCompletedTasks] = useState(true);
   const [undoAction, setUndoAction] = useState(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showManageScopes, setShowManageScopes] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
@@ -325,6 +326,10 @@ export default function TodoApp() {
       setScopes([...scopes, { ...newScope, todos: [] }]);
       setActiveScope(newScope.id);
       setShowScopeMenu(false);
+
+      // Auto-edit the newly created scope
+      setEditingTabId(newScope.id);
+      setEditingTabName(newScope.name);
     } catch (error) {
       console.error("Failed to add scope:", error);
     }
@@ -737,27 +742,14 @@ export default function TodoApp() {
               )}
 
               {/* Scope selector & actions */}
-              <div className="flex items-center justify-between gap-2">
-                <select
-                  value={activeScope || ""}
-                  onChange={(e) => {
-                    if (e.target.value === '__add_new__') {
-                      addScope();
-                    } else {
-                      setActiveScope(e.target.value);
-                    }
-                  }}
-                  className={`flex-1 px-3 py-2 text-sm border ${darkMode ? "bg-dark-bg border-dark-border/30 text-dark-text" : "bg-neutral-50 border-neutral-200 text-neutral-800"} rounded focus:outline-none focus:border-neutral-400`}
+              <div className="flex items-center justify-between gap-2 w-full">
+                <button
+                  onClick={() => setShowManageScopes(true)}
+                  className={`flex items-center gap-2 px-3 py-2 text-sm border ${darkMode ? "bg-dark-bg border-dark-border/30 text-dark-text" : "bg-neutral-50 border-neutral-200 text-neutral-800"} rounded transition-colors active:scale-95`}
                 >
-                  {scopes.map((scope) => (
-                    <option key={scope.id} value={scope.id}>
-                      {scope.name}
-                    </option>
-                  ))}
-                  <option value="__add_new__" className={darkMode ? "text-dark-muted" : "text-neutral-500"}>
-                    + Add new scope
-                  </option>
-                </select>
+                  <span>{currentScope?.name || "Select scope"}</span>
+                  <Menu size={16} className={darkMode ? "text-dark-muted" : "text-neutral-500"} />
+                </button>
 
                 <div className="flex items-center gap-1">
                   <MusicPlayer darkMode={darkMode} />
@@ -780,10 +772,10 @@ export default function TodoApp() {
                   )}
                   <button
                     onClick={() => setShowLogoutConfirm(true)}
-                    className={`p-3 ${darkMode ? "text-dark-text hover:bg-neutral-700" : "text-neutral-600 hover:bg-neutral-100"} rounded transition-colors active:scale-95`}
+                    className={`p-2 ${darkMode ? "text-dark-text hover:bg-neutral-700" : "text-neutral-600 hover:bg-neutral-100"} rounded transition-colors active:scale-95`}
                     title="Logout"
                   >
-                    <LogOut size={20} />
+                    <LogOut size={18} />
                   </button>
                 </div>
               </div>
@@ -1154,6 +1146,137 @@ export default function TodoApp() {
                   className={`px-4 py-2 text-sm ${darkMode ? "bg-white text-neutral-900 hover:bg-neutral-100" : "bg-neutral-700 text-white hover:bg-neutral-700"} rounded transition-colors`}
                 >
                   Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Manage Scopes Modal */}
+        {showManageScopes && (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end lg:items-center justify-center z-[100]"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowManageScopes(false);
+              }
+            }}
+          >
+            <div
+              className={`${darkMode ? "bg-dark-card border-dark-border/30" : "bg-white border-neutral-200"} border lg:rounded-lg rounded-t-2xl w-full lg:max-w-md max-h-[85vh] lg:max-h-[70vh] flex flex-col animate-slideUp lg:animate-scaleIn`}
+              style={{ touchAction: 'auto' }}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-dark-border/30">
+                <h3 className={`text-lg font-medium ${darkMode ? "text-dark-text" : "text-neutral-900"}`}>
+                  Manage Scopes
+                </h3>
+                <button
+                  onClick={() => setShowManageScopes(false)}
+                  className={`p-2 ${darkMode ? "hover:bg-neutral-700" : "hover:bg-neutral-100"} rounded-full transition-colors`}
+                >
+                  <X size={20} className={darkMode ? "text-dark-muted" : "text-neutral-500"} />
+                </button>
+              </div>
+
+              {/* Scopes List */}
+              <div className="flex-1 overflow-y-auto p-2">
+                {scopes.map((scope) => (
+                  <div
+                    key={scope.id}
+                    className={`group flex items-center gap-3 p-3 rounded-lg mb-2 transition-all ${
+                      activeScope === scope.id
+                        ? `${darkMode ? "bg-white text-neutral-900" : "bg-neutral-700 text-white"}`
+                        : `${darkMode ? "hover:bg-neutral-700/50" : "hover:bg-neutral-50"}`
+                    }`}
+                  >
+                    {/* Active indicator */}
+                    <div className={`w-2 h-2 rounded-full transition-all ${
+                      activeScope === scope.id
+                        ? `${darkMode ? "bg-neutral-900" : "bg-white"}`
+                        : "bg-transparent"
+                    }`} />
+
+                    {/* Scope name - editable */}
+                    {editingTabId === scope.id ? (
+                      <input
+                        type="text"
+                        value={editingTabName}
+                        onChange={(e) => setEditingTabName(e.target.value)}
+                        onBlur={saveTabName}
+                        onKeyPress={(e) => e.key === "Enter" && saveTabName()}
+                        className={`flex-1 px-2 py-1 text-sm rounded border ${
+                          darkMode
+                            ? "bg-neutral-800 text-white border-neutral-600"
+                            : "bg-white text-neutral-900 border-neutral-300"
+                        } focus:outline-none focus:border-neutral-400`}
+                        autoFocus
+                      />
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setActiveScope(scope.id);
+                          setShowManageScopes(false);
+                        }}
+                        className={`flex-1 text-left text-sm font-medium ${
+                          activeScope === scope.id
+                            ? ""
+                            : `${darkMode ? "text-dark-text" : "text-neutral-700"}`
+                        }`}
+                      >
+                        {scope.name}
+                      </button>
+                    )}
+
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => startEditingTab(scope)}
+                        className={`p-2 opacity-0 group-hover:opacity-100 transition-opacity ${
+                          darkMode ? "hover:bg-neutral-600" : "hover:bg-neutral-200"
+                        } rounded`}
+                        title="Rename"
+                      >
+                        <Edit2 size={14} className={
+                          activeScope === scope.id
+                            ? `${darkMode ? "text-neutral-900" : "text-white"}`
+                            : `${darkMode ? "text-dark-muted" : "text-neutral-500"}`
+                        } />
+                      </button>
+
+                      {scopes.length > 1 && (
+                        <button
+                          onClick={() => deleteScope(scope.id)}
+                          className={`p-2 opacity-0 group-hover:opacity-100 transition-opacity ${
+                            darkMode ? "hover:bg-red-900/20" : "hover:bg-red-50"
+                          } rounded`}
+                          title="Delete"
+                        >
+                          <Trash2 size={14} className={
+                            darkMode ? "text-red-400" : "text-red-500"
+                          } />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer - Add new scope button */}
+              <div className="p-4 border-t border-neutral-200 dark:border-dark-border/30">
+                <button
+                  onClick={() => {
+                    addScope();
+                    // Don't close modal so user can immediately rename
+                  }}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium ${
+                    darkMode
+                      ? "bg-white text-neutral-900 hover:bg-neutral-100"
+                      : "bg-neutral-700 text-white hover:bg-neutral-800"
+                  } rounded-lg transition-all active:scale-95`}
+                >
+                  <Plus size={18} />
+                  Add New Scope
                 </button>
               </div>
             </div>
