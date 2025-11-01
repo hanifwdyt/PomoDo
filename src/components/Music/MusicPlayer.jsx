@@ -94,6 +94,9 @@ export default function MusicPlayer({ darkMode }) {
             controls: 0,
             modestbranding: 1,
             rel: 0,
+            playsinline: 1, // Critical for mobile iOS
+            enablejsapi: 1, // Enable JS API for mobile
+            origin: window.location.origin, // Required for iframe security
           },
           events: {
             onReady: (event) => {
@@ -182,10 +185,18 @@ export default function MusicPlayer({ darkMode }) {
 
   const togglePlay = () => {
     if (playerRef.current) {
-      if (isPlaying) {
-        playerRef.current.pauseVideo();
-      } else {
-        playerRef.current.playVideo();
+      try {
+        if (isPlaying) {
+          playerRef.current.pauseVideo();
+        } else {
+          // Mobile needs explicit play call with error handling
+          playerRef.current.playVideo();
+        }
+      } catch (err) {
+        console.error("Play/Pause error:", err);
+        // On mobile, sometimes needs to re-init
+        setIsPlayerReady(false);
+        setTimeout(() => setIsPlayerReady(true), 100);
       }
     }
   };
