@@ -771,10 +771,10 @@ export default function TodoApp() {
                   )}
                   <button
                     onClick={() => setShowLogoutConfirm(true)}
-                    className={`p-2 ${darkMode ? "text-dark-text" : "text-neutral-600"}`}
+                    className={`p-3 ${darkMode ? "text-dark-text hover:bg-neutral-700" : "text-neutral-600 hover:bg-neutral-100"} rounded transition-colors active:scale-95`}
                     title="Logout"
                   >
-                    <LogOut size={18} />
+                    <LogOut size={20} />
                   </button>
                 </div>
               </div>
