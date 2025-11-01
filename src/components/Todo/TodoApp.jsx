@@ -1034,9 +1034,18 @@ export default function TodoApp() {
 
         {/* Logout Confirmation Dialog */}
         {showLogoutConfirm && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
+            onClick={(e) => {
+              // Close if clicking backdrop
+              if (e.target === e.currentTarget) {
+                setShowLogoutConfirm(false);
+              }
+            }}
+          >
             <div
-              className={`${darkMode ? "bg-dark-card border-dark-border/30" : "bg-white border-neutral-200"} border rounded-lg p-6 max-w-sm w-full animate-scaleIn`}
+              className={`${darkMode ? "bg-dark-card border-dark-border/30" : "bg-white border-neutral-200"} border rounded-lg p-6 max-w-sm w-full animate-scaleIn relative`}
+              style={{ touchAction: 'auto' }}
             >
               <h3
                 className={`text-lg font-medium ${darkMode ? "text-dark-text" : "text-neutral-900"} mb-2`}
@@ -1048,16 +1057,18 @@ export default function TodoApp() {
               >
                 Are you sure you want to logout?
               </p>
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-3 justify-end">
                 <button
                   onClick={() => setShowLogoutConfirm(false)}
-                  className={`px-4 py-2 text-sm ${darkMode ? "text-neutral-300 hover:bg-neutral-700" : "text-neutral-600 hover:bg-neutral-100"} rounded transition-colors`}
+                  className={`px-5 py-3 text-sm ${darkMode ? "text-neutral-300 hover:bg-neutral-700" : "text-neutral-600 hover:bg-neutral-100"} rounded transition-colors active:scale-95`}
+                  style={{ touchAction: 'manipulation' }}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleLogout}
-                  className={`px-4 py-2 text-sm ${darkMode ? "bg-red-600 hover:bg-red-700" : "bg-red-500 hover:bg-red-600"} text-white rounded transition-colors`}
+                  className={`px-5 py-3 text-sm ${darkMode ? "bg-red-600 hover:bg-red-700 active:bg-red-800" : "bg-red-500 hover:bg-red-600 active:bg-red-700"} text-white rounded transition-colors active:scale-95 font-medium`}
+                  style={{ touchAction: 'manipulation' }}
                 >
                   Logout
                 </button>
