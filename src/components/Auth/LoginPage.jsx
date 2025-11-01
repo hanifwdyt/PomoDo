@@ -235,10 +235,13 @@ export default function LoginPage({ onLoginSuccess }) {
         </div>
       </div>
 
-        {/* Subtle footer - only on mobile */}
-        <div className="md:hidden text-center pb-6 px-4">
-          <p className={`text-xs ${darkMode ? 'text-neutral-600' : 'text-neutral-400'}`}>
+        {/* Footer */}
+        <div className="text-center pb-6 px-4">
+          <p className={`text-xs ${darkMode ? 'text-neutral-600' : 'text-neutral-400'} md:hidden mb-2`}>
             Made with focus and simplicity
+          </p>
+          <p className={`text-xs ${darkMode ? 'text-neutral-600' : 'text-neutral-400'}`}>
+            v1.2.1
           </p>
         </div>
       </div>
