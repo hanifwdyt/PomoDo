@@ -1,0 +1,14 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="128" fill="#1a1a1a"/>
+
+  <!-- Pomodoro Timer Circle -->
+  <circle cx="256" cy="200" r="100" stroke="#e5e5e5" stroke-width="8" fill="none"/>
+  <path d="M 256 100 A 100 100 0 0 1 356 200" stroke="#ffffff" stroke-width="12" stroke-linecap="round" fill="none"/>
+
+  <!-- Checkmark -->
+  <path d="M 180 320 L 220 360 L 320 260" stroke="#ffffff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Text -->
+  <text x="256" y="440" font-family="system-ui, -apple-system" font-size="80" font-weight="300" text-anchor="middle" fill="#e5e5e5">PD</text>
+</svg>
