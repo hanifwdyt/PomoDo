@@ -1067,7 +1067,11 @@ export default function TodoApp() {
                 </button>
                 <button
                   onClick={handleLogout}
-                  onTouchStart={(e) => e.stopPropagation()}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleLogout();
+                  }}
                   className={`px-5 py-3 text-sm ${darkMode ? "bg-red-600 hover:bg-red-700 active:bg-red-800" : "bg-red-500 hover:bg-red-600 active:bg-red-700"} text-white rounded transition-colors active:scale-95 font-medium`}
                   style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
                 >
