@@ -12,9 +12,11 @@ export default function MusicPlayer({ darkMode }) {
   const [showWidget, setShowWidget] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isAPIReady, setIsAPIReady] = useState(false);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
   const playerRef = useRef(null);
   const iframeRef = useRef(null);
   const pendingVideoIdRef = useRef(null);
+  const timeoutRef = useRef(null);
 
   // Load from localStorage
   useEffect(() => {
@@ -74,6 +76,20 @@ export default function MusicPlayer({ darkMode }) {
 
     console.log("Initializing player with videoId:", videoId);
     setIsPlayerReady(false);
+    setLoadingTimeout(false);
+
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Set 15-second timeout
+    timeoutRef.current = setTimeout(() => {
+      if (!isPlayerReady) {
+        console.log("Player loading timeout after 15 seconds");
+        setLoadingTimeout(true);
+      }
+    }, 15000);
 
     const initPlayer = () => {
       // Destroy existing player
@@ -101,7 +117,14 @@ export default function MusicPlayer({ darkMode }) {
           events: {
             onReady: (event) => {
               console.log("Player ready!");
+
+              // Clear timeout when player is ready
+              if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+              }
+
               setIsPlayerReady(true);
+              setLoadingTimeout(false);
               setIsPlaying(false);
 
               // Get video title
@@ -217,10 +240,20 @@ export default function MusicPlayer({ darkMode }) {
       playerRef.current.stopVideo();
       playerRef.current.destroy();
     }
+    // Clear timeout on close
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
     setMusicEnabled(false);
     setIsPlaying(false);
     setVideoId("");
+    setLoadingTimeout(false);
     localStorage.setItem("musicEnabled", "false");
+  };
+
+  const handleRetry = () => {
+    setLoadingTimeout(false);
+    setShowModal(true);
   };
 
   return (
@@ -347,20 +380,50 @@ export default function MusicPlayer({ darkMode }) {
                 : "bg-white border-neutral-200"
             } border rounded-lg p-3 shadow-lg flex items-center gap-3`}
           >
-            {/* Loading State - Skeleton */}
+            {/* Loading State - Skeleton or Timeout */}
             {!isPlayerReady ? (
-              <>
-                <div className={`h-6 w-6 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse flex-shrink-0`}></div>
-                <div className="flex-1 min-w-0 space-y-2">
-                  <div className={`h-3 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse w-3/4`}></div>
-                  <div className={`h-2 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse w-1/2`}></div>
-                </div>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <div className={`h-7 w-7 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse`}></div>
-                  <div className={`h-8 w-8 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse`}></div>
-                  <div className={`h-7 w-7 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse`}></div>
-                </div>
-              </>
+              loadingTimeout ? (
+                // Timeout message
+                <>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-xs font-medium ${darkMode ? "text-yellow-400" : "text-yellow-600"}`}>
+                      Music taking too long to load
+                    </p>
+                    <p className={`text-xs ${darkMode ? "text-dark-muted" : "text-neutral-500"} mt-0.5`}>
+                      Network might be slow or the video unavailable
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={handleRetry}
+                      className={`px-3 py-1.5 text-xs font-medium ${darkMode ? "bg-white text-neutral-900 hover:bg-neutral-100" : "bg-neutral-700 text-white hover:bg-neutral-800"} rounded transition-colors`}
+                    >
+                      Try Again
+                    </button>
+                    <button
+                      onClick={handleClose}
+                      className={`p-1.5 ${darkMode ? "hover:bg-neutral-700 text-dark-muted" : "hover:bg-neutral-100 text-neutral-400"} rounded transition-colors`}
+                      title="Remove music"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                // Skeleton loading
+                <>
+                  <div className={`h-6 w-6 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse flex-shrink-0`}></div>
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className={`h-3 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse w-3/4`}></div>
+                    <div className={`h-2 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse w-1/2`}></div>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <div className={`h-7 w-7 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse`}></div>
+                    <div className={`h-8 w-8 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse`}></div>
+                    <div className={`h-7 w-7 rounded ${darkMode ? "bg-neutral-700" : "bg-neutral-200"} animate-pulse`}></div>
+                  </div>
+                </>
+              )
             ) : (
               <>
                 {/* Waveform Bars */}
