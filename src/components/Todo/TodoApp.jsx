@@ -737,8 +737,9 @@ export default function TodoApp() {
               )}
 
               {/* Scope selector & actions */}
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 flex-1">
+              <div className="space-y-3">
+                {/* Row 1: Scope selector with add button */}
+                <div className="flex items-center gap-2">
                   <select
                     value={activeScope || ""}
                     onChange={(e) => setActiveScope(e.target.value)}
@@ -760,7 +761,8 @@ export default function TodoApp() {
                   </button>
                 </div>
 
-                <div className="flex items-center gap-1">
+                {/* Row 2: Action buttons */}
+                <div className="flex items-center justify-end gap-1">
                   <MusicPlayer darkMode={darkMode} />
 
                   <button
