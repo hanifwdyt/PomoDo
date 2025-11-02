@@ -14,6 +14,7 @@ export default function MusicPlayer({ darkMode }) {
   const [isAPIReady, setIsAPIReady] = useState(false);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [playerError, setPlayerError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const playerRef = useRef(null);
   const iframeRef = useRef(null);
   const pendingVideoIdRef = useRef(null);
@@ -52,9 +53,19 @@ export default function MusicPlayer({ darkMode }) {
       const firstScriptTag = document.getElementsByTagName("script")[0];
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-      window.onYouTubeIframeAPIReady = () => {
+      const apiReadyHandler = () => {
         console.log("YouTube API Ready");
         setIsAPIReady(true);
+      };
+
+      window.onYouTubeIframeAPIReady = apiReadyHandler;
+
+      // Cleanup function
+      return () => {
+        // Clean up the global callback reference
+        if (window.onYouTubeIframeAPIReady === apiReadyHandler) {
+          window.onYouTubeIframeAPIReady = null;
+        }
       };
     } else {
       // YT exists but Player might not be ready yet
@@ -67,7 +78,13 @@ export default function MusicPlayer({ darkMode }) {
       }, 100);
 
       // Cleanup after 5 seconds
-      setTimeout(() => clearInterval(checkReady), 5000);
+      const cleanupTimer = setTimeout(() => clearInterval(checkReady), 5000);
+
+      // Return cleanup function
+      return () => {
+        clearInterval(checkReady);
+        clearTimeout(cleanupTimer);
+      };
     }
   }, []);
 
@@ -100,9 +117,8 @@ export default function MusicPlayer({ darkMode }) {
         setMusicEnabled(false);
         setIsPlaying(false);
         setVideoId("");
-        setLoadingTimeout(false);
+        setLoadingTimeout(true);
         localStorage.setItem("musicEnabled", "false");
-        alert("Music took too long to load. Please try with a different video or check your internet connection.");
       }
     }, 15000);
 
@@ -174,12 +190,10 @@ export default function MusicPlayer({ darkMode }) {
               setMusicEnabled(false);
               setIsPlaying(false);
               setVideoId("");
-              setPlayerError(false);
+              setPlayerError(true);
               setLoadingTimeout(false);
               setIsPlayerReady(false);
               localStorage.setItem("musicEnabled", "false");
-
-              alert("Can't play this video. It may be unavailable, private, or restricted. Please try a different video.");
             },
           },
         });
@@ -191,7 +205,13 @@ export default function MusicPlayer({ darkMode }) {
 
     // Delay to ensure iframe element is ready
     const timer = setTimeout(initPlayer, 200);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      // Cleanup timeout ref when effect re-runs or unmounts
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [isAPIReady, videoId]);
 
   const extractVideoId = (url) => {
@@ -216,6 +236,7 @@ export default function MusicPlayer({ darkMode }) {
       setVideoId(id);
       setMusicEnabled(true);
       setIsPlaying(false);
+      setErrorMessage("");
       localStorage.setItem("musicYoutubeUrl", youtubeUrl);
       localStorage.setItem("musicVideoId", id);
       localStorage.setItem("musicEnabled", "true");
@@ -224,7 +245,7 @@ export default function MusicPlayer({ darkMode }) {
       // Show widget immediately
       setShowWidget(true);
     } else {
-      alert("Invalid YouTube URL. Please paste a valid YouTube link.");
+      setErrorMessage("Invalid YouTube URL. Please paste a valid YouTube link.");
     }
   };
 
@@ -233,6 +254,7 @@ export default function MusicPlayer({ darkMode }) {
       // Fresh open
       setYoutubeUrl("");
     }
+    setErrorMessage("");
     setShowModal(true);
   };
 
@@ -380,16 +402,30 @@ export default function MusicPlayer({ darkMode }) {
             <input
               type="text"
               value={youtubeUrl}
-              onChange={(e) => setYoutubeUrl(e.target.value)}
+              onChange={(e) => {
+                setYoutubeUrl(e.target.value);
+                if (errorMessage) setErrorMessage("");
+              }}
               onKeyPress={(e) => e.key === "Enter" && handleSubmitUrl()}
               placeholder="https://www.youtube.com/watch?v=..."
-              className={`w-full px-3 py-2.5 mb-4 border text-sm ${
+              className={`w-full px-3 py-2.5 mb-2 border text-sm ${
                 darkMode
                   ? "bg-neutral-800 border-neutral-600 text-white placeholder-neutral-500"
                   : "bg-white border-neutral-200 text-neutral-900 placeholder-neutral-400"
               } rounded focus:outline-none focus:border-neutral-400 transition-all`}
               autoFocus
             />
+
+            {/* Inline Error Message */}
+            {errorMessage && (
+              <div className={`mb-4 p-2.5 rounded text-xs ${
+                darkMode
+                  ? "bg-red-900/30 text-red-400 border border-red-800/50"
+                  : "bg-red-50 text-red-600 border border-red-200"
+              }`}>
+                {errorMessage}
+              </div>
+            )}
 
             <button
               onClick={handleSubmitUrl}
