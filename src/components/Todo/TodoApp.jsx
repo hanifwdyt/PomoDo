@@ -15,9 +15,11 @@ import {
   ChevronUp,
   Moon,
   Sun,
+  Sparkles,
 } from "lucide-react";
 import { scopesAPI, todosAPI, authAPI } from "../../services/api";
 import MusicPlayer from "../Music/MusicPlayer";
+import ChangelogModal, { CURRENT_VERSION } from "../Shared/ChangelogModal";
 
 export default function TodoApp() {
   const [scopes, setScopes] = useState([]);
@@ -46,6 +48,7 @@ export default function TodoApp() {
   const [undoAction, setUndoAction] = useState(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showManageScopes, setShowManageScopes] = useState(false);
+  const [showChangelog, setShowChangelog] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
@@ -125,6 +128,22 @@ export default function TodoApp() {
       localStorage.setItem("darkMode", "false");
     }
   }, [darkMode]);
+
+  // Check for version updates and show changelog
+  useEffect(() => {
+    const lastSeenVersion = localStorage.getItem("lastSeenVersion");
+    if (lastSeenVersion !== CURRENT_VERSION) {
+      // Show changelog after a short delay to avoid overwhelming on first load
+      setTimeout(() => {
+        setShowChangelog(true);
+      }, 1000);
+    }
+  }, []);
+
+  const handleCloseChangelog = () => {
+    setShowChangelog(false);
+    localStorage.setItem("lastSeenVersion", CURRENT_VERSION);
+  };
 
   // Save timer state to localStorage whenever it changes (skip on initial mount)
   useEffect(() => {
@@ -578,13 +597,22 @@ export default function TodoApp() {
           >
             PomoDo
           </div>
-          <button
-            onClick={() => setShowLogoutConfirm(true)}
-            className={`p-2 ${darkMode ? "text-dark-text hover:text-white" : "text-neutral-400 hover:text-neutral-400"} transition-colors`}
-            title="Logout"
-          >
-            <LogOut size={20} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowChangelog(true)}
+              className={`p-2 ${darkMode ? "text-dark-text hover:text-white" : "text-neutral-400 hover:text-neutral-600"} transition-colors`}
+              title="What's New"
+            >
+              <Sparkles size={20} />
+            </button>
+            <button
+              onClick={() => setShowLogoutConfirm(true)}
+              className={`p-2 ${darkMode ? "text-dark-text hover:text-white" : "text-neutral-400 hover:text-neutral-600"} transition-colors`}
+              title="Logout"
+            >
+              <LogOut size={20} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -753,6 +781,14 @@ export default function TodoApp() {
 
                 <div className="flex items-center gap-1">
                   <MusicPlayer darkMode={darkMode} />
+
+                  <button
+                    onClick={() => setShowChangelog(true)}
+                    className={`p-2 ${darkMode ? "text-dark-text" : "text-neutral-600"}`}
+                    title="What's New"
+                  >
+                    <Sparkles size={18} />
+                  </button>
 
                   <button
                     onClick={() => setDarkMode(!darkMode)}
@@ -1307,6 +1343,11 @@ export default function TodoApp() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Changelog Modal */}
+        {showChangelog && (
+          <ChangelogModal darkMode={darkMode} onClose={handleCloseChangelog} />
         )}
       </div>
     </div>
