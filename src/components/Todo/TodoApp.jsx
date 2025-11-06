@@ -925,11 +925,24 @@ export default function TodoApp() {
                       className={`w-5 h-5 lg:w-4 lg:h-4 rounded ${darkMode ? "border-neutral-600 bg-neutral-800" : "border-neutral-300"} text-neutral-800 focus:ring-0 focus:ring-offset-0 cursor-pointer flex-shrink-0 transition-transform active:scale-90`}
                     />
 
-                    <span
-                      className={`flex-1 text-sm leading-relaxed ${darkMode ? "text-dark-text" : "text-neutral-700"}`}
-                    >
-                      {todo.text}
-                    </span>
+                    {editingTodoId === todo.id ? (
+                      <input
+                        type="text"
+                        value={editingTodoText}
+                        onChange={(e) => setEditingTodoText(e.target.value)}
+                        onBlur={saveTodoText}
+                        onKeyPress={(e) => e.key === "Enter" && saveTodoText()}
+                        className={`flex-1 px-2 py-1 text-sm border rounded ${darkMode ? "bg-neutral-800 text-white border-neutral-600" : "bg-white text-neutral-900 border-neutral-300"} focus:outline-none focus:border-neutral-400`}
+                        autoFocus
+                      />
+                    ) : (
+                      <span
+                        onDoubleClick={() => startEditingTodo(todo)}
+                        className={`flex-1 text-sm leading-relaxed cursor-pointer ${darkMode ? "text-dark-text" : "text-neutral-700"}`}
+                      >
+                        {todo.text}
+                      </span>
+                    )}
 
                     <button
                       onClick={() => deleteTodo(todo.id)}
@@ -970,11 +983,24 @@ export default function TodoApp() {
                             className={`w-5 h-5 lg:w-4 lg:h-4 rounded ${darkMode ? "border-neutral-600 bg-neutral-800" : "border-neutral-300"} text-neutral-800 focus:ring-0 focus:ring-offset-0 cursor-pointer flex-shrink-0 transition-transform active:scale-90`}
                           />
 
-                          <span
-                            className={`flex-1 text-sm line-through leading-relaxed ${darkMode ? "text-neutral-600" : "text-neutral-400"} transition-all`}
-                          >
-                            {todo.text}
-                          </span>
+                          {editingTodoId === todo.id ? (
+                            <input
+                              type="text"
+                              value={editingTodoText}
+                              onChange={(e) => setEditingTodoText(e.target.value)}
+                              onBlur={saveTodoText}
+                              onKeyPress={(e) => e.key === "Enter" && saveTodoText()}
+                              className={`flex-1 px-2 py-1 text-sm border rounded ${darkMode ? "bg-neutral-800 text-white border-neutral-600" : "bg-white text-neutral-900 border-neutral-300"} focus:outline-none focus:border-neutral-400`}
+                              autoFocus
+                            />
+                          ) : (
+                            <span
+                              onDoubleClick={() => startEditingTodo(todo)}
+                              className={`flex-1 text-sm line-through leading-relaxed cursor-pointer ${darkMode ? "text-neutral-600" : "text-neutral-400"} transition-all`}
+                            >
+                              {todo.text}
+                            </span>
+                          )}
 
                           <button
                             onClick={() => deleteTodo(todo.id)}
